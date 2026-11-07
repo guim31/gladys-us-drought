@@ -129,7 +129,7 @@ folgenden Aktionen.
   Mitigation Center at the University of Nebraska-Lincoln, the United States
   Department of Agriculture, and the National Oceanic and Atmospheric
   Administration. Map courtesy of NDMC.“
-- Nicht mit dem US Drought Monitor, dem NDMC, dem USDA oder der NOAA verbunden.
+- Steht in keiner Verbindung zum US Drought Monitor, zum NDMC, zum USDA oder zur NOAA.
 
 ## Fehlerbehebung
 

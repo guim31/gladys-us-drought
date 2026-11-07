@@ -55,7 +55,7 @@
       "description": {
         "en": "Map of the US Drought Monitor (NDMC, USDA, NOAA), read without an account, published every Thursday with the data of Tuesday. It does not set water restrictions: they depend on your city or water utility. Not affiliated with the US Drought Monitor.",
         "fr": "Carte de l'US Drought Monitor (NDMC, USDA, NOAA), lue sans compte, publiée chaque jeudi avec les données du mardi. Elle ne fixe pas les restrictions d'eau : elles dépendent de votre ville ou de votre distributeur. Non affiliée à l'US Drought Monitor.",
-        "de": "Karte des US Drought Monitor (NDMC, USDA, NOAA), ohne Konto gelesen, jeden Donnerstag mit den Daten vom Dienstag veröffentlicht. Die Karte legt keine Wasserbeschränkungen fest: Diese hängen von deiner Stadt oder deinem Wasserversorger ab. Nicht mit dem US Drought Monitor verbunden.",
+        "de": "Karte des US Drought Monitor (NDMC, USDA, NOAA), ohne Konto gelesen, jeden Donnerstag mit den Daten vom Dienstag veröffentlicht. Die Karte legt keine Wasserbeschränkungen fest: Diese hängen von deiner Stadt oder deinem Wasserversorger ab. Steht in keiner Verbindung zum US Drought Monitor.",
         "es": "Mapa del US Drought Monitor (NDMC, USDA, NOAA), leído sin cuenta, publicado cada jueves con los datos del martes. No fija las restricciones de agua: dependen de su ciudad o de su distribuidor. Sin afiliación con el US Drought Monitor."
       },
       "links": [

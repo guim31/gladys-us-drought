@@ -128,7 +128,7 @@ function countyContent(monitor, fips, language, settings) {
       type: 'image',
       key: imageKey(fips, snapshot.date),
       alt: t(TEXT.alt, language),
-      fit: 'cover',
+      fit: 'contain',
     });
   }
   const items = [

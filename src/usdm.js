@@ -14,9 +14,9 @@ export const API_BASE = 'https://usdmdataservices.unl.edu/api';
 const PATH = '/CountyStatistics/GetDroughtSeverityStatisticsByAreaPercent';
 const TIMEOUT_MS = 30 * 1000;
 const DAY_MS = 24 * 3600 * 1000;
-// Six weeks back from today: the latest map (up to 9 days old on a
-// Wednesday) and the one 4 weeks before it.
-export const WINDOW_DAYS = 42;
+// Seven weeks back from today: the latest map (up to 9 days old on a
+// Wednesday, more when a map is late) and the one 4 weeks before it.
+export const WINDOW_DAYS = 49;
 
 export class SourceError extends Error {
   constructor(message) {

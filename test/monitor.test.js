@@ -246,3 +246,39 @@ test('a restart reads nothing for a day and publishes the saved maps', async (t)
   assert.equal(calls.length, 0);
   assert.equal(second.fake.lastState(featureId(second, HARRIS, 'level')), 4);
 });
+
+test('a cycle that skips a county that just failed keeps the failure status', async (t) => {
+  let down = false;
+  const fetch = fixtureFetch({ overrides: [[() => down, () => response(503)]] });
+  const world = await createWorld({ created: [HARRIS], config: { counties: HARRIS }, fetch });
+  t.after(() => world.cleanup());
+  down = true;
+  world.clock.now += DAY;
+  await world.monitor.runCycle();
+  assert.deepEqual(world.fake.connectionStatus, { connected: false, message: STATUS.sourceDown });
+  const count = world.fake.connectionStatuses.length;
+  world.clock.now += 20 * 60 * 1000;
+  await world.fake.configUpdated({ counties: HARRIS, language: 'en' });
+  assert.equal(world.fake.connectionStatuses.length, count);
+  down = false;
+  world.clock.now += HOUR;
+  await world.monitor.runCycle();
+  assert.equal(world.fake.connectionStatus.connected, true);
+});
+
+test('a threshold changed while a new map arrives fires nothing', async (t) => {
+  const state = { latest: '2026-10-27' };
+  const world = await createWorld({
+    fetch: fixtureFetch({ state }),
+    created: [MIAMI],
+    config: { counties: MIAMI, threshold: '1' },
+    clock: { now: Date.parse('2026-10-31T18:00:00Z') },
+  });
+  t.after(() => world.cleanup());
+  // 27 October at 1 %: D2. New map (D2 16.95 %) read with a threshold of
+  // 25 % (D1): the levels are not comparable, nothing improved.
+  state.latest = '2026-11-03';
+  world.clock.now = NOV_7;
+  await world.fake.configUpdated({ counties: MIAMI, threshold: '25' });
+  assert.deepEqual(world.fake.sceneEvents, []);
+});

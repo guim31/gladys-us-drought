@@ -96,7 +96,7 @@ export const STATUS = {
 export const SUMMARY = {
   en: {
     drought: '{county}, map of {date}: {level}, {share} of the county in drought (D1+).',
-    dry: '{county}, map of {date}: {level}, no drought (D1+) yet.',
+    dry: '{county}, map of {date}: {level}.',
     none: '{county}, map of {date}: no drought.',
     worse: 'Worse than 4 weeks ago.',
     better: 'Better than 4 weeks ago.',
@@ -105,7 +105,7 @@ export const SUMMARY = {
   },
   fr: {
     drought: '{county}, carte du {date} : {level}, {share} du comté en sécheresse (D1+).',
-    dry: '{county}, carte du {date} : {level}, pas encore de sécheresse (D1+).',
+    dry: '{county}, carte du {date} : {level}.',
     none: '{county}, carte du {date} : pas de sécheresse.',
     worse: 'Pire qu’il y a 4 semaines.',
     better: 'Mieux qu’il y a 4 semaines.',
@@ -114,7 +114,7 @@ export const SUMMARY = {
   },
   de: {
     drought: '{county}, Karte vom {date}: {level}, {share} des Countys in Dürre (D1+).',
-    dry: '{county}, Karte vom {date}: {level}, noch keine Dürre (D1+).',
+    dry: '{county}, Karte vom {date}: {level}.',
     none: '{county}, Karte vom {date}: keine Dürre.',
     worse: 'Schlechter als vor 4 Wochen.',
     better: 'Besser als vor 4 Wochen.',
@@ -123,7 +123,7 @@ export const SUMMARY = {
   },
   es: {
     drought: '{county}, mapa del {date}: {level}, {share} del condado en sequía (D1+).',
-    dry: '{county}, mapa del {date}: {level}, todavía sin sequía (D1+).',
+    dry: '{county}, mapa del {date}: {level}.',
     none: '{county}, mapa del {date}: sin sequía.',
     worse: 'Peor que hace 4 semanas.',
     better: 'Mejor que hace 4 semanas.',

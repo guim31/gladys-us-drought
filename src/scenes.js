@@ -26,9 +26,10 @@ export function summaryText(countyLabel, snapshot, language) {
     share: percentText(snapshot.map.d1, language),
   };
   let sentence;
-  if (snapshot.map.d1 > 0) {
+  // The sentence follows the level (and its threshold), like the devices.
+  if (snapshot.level >= 2) {
     sentence = fill(texts.drought, values);
-  } else if (snapshot.level > 0) {
+  } else if (snapshot.level === 1) {
     sentence = fill(texts.dry, values);
   } else {
     sentence = fill(texts.none, values);

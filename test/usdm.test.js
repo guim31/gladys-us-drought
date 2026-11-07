@@ -19,7 +19,7 @@ test('the request asks six weeks of cumulative county statistics in JSON', async
   assert.equal(url.pathname, '/api/CountyStatistics/GetDroughtSeverityStatisticsByAreaPercent');
   assert.deepEqual(Object.fromEntries(url.searchParams), {
     aoi: HARRIS,
-    startdate: '9/26/2026',
+    startdate: '9/19/2026',
     enddate: '11/7/2026',
     statisticsType: '1',
   });

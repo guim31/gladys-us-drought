@@ -81,7 +81,7 @@ export class Monitor {
     this.unknown = {};
     // fips → time of the last failed read
     this.failedAt = {};
-    // fips → { date, level }: the reference of the triggers
+    // fips → { date, level, threshold }: the reference of the triggers
     this.seen = {};
     this.lastCycleAt = null;
     this.running = null;
@@ -111,7 +111,11 @@ export class Monitor {
       }
     }
     for (const [fips, entry] of Object.entries(saved.seen ?? {})) {
-      if (typeof entry?.date === 'string' && Number.isInteger(entry?.level)) {
+      if (
+        typeof entry?.date === 'string' &&
+        Number.isInteger(entry?.level) &&
+        Number.isFinite(entry?.threshold)
+      ) {
         this.seen[fips] = entry;
       }
     }
@@ -197,7 +201,7 @@ export class Monitor {
     if (now - (this.unknown[fips] ?? -Infinity) < DAILY_MS && now >= this.unknown[fips]) {
       return false;
     }
-    if (now - (this.failedAt[fips] ?? -Infinity) < FAILED_RETRY_MS) {
+    if (now - (this.failedAt[fips] ?? -Infinity) < FAILED_RETRY_MS && now >= this.failedAt[fips]) {
       return false;
     }
     const county = this.counties[fips];
@@ -257,7 +261,12 @@ export class Monitor {
         failure ??= err;
       }
     }
-    await this.setFailure(failure);
+    // A cycle that read nothing (a county that just failed is skipped) says
+    // nothing about the source: a failure stays a failure until a read succeeds.
+    const stillFailing = this.config.codes.some((fips) => this.failedAt[fips]);
+    if (read || !stillFailing || this.failing !== 'source') {
+      await this.setFailure(failure);
+    }
     const fired = await this.checkTriggers();
     if (read || fired) {
       await this.save();
@@ -279,16 +288,21 @@ export class Monitor {
       if (!snapshot) {
         continue;
       }
+      const threshold = this.config.threshold;
       const previous = this.seen[fips];
-      if (previous && snapshot.date <= previous.date) {
-        if (snapshot.date === previous.date && snapshot.level !== previous.level) {
-          // Same map, other threshold: the reference follows, nothing fires.
-          this.seen[fips] = { date: snapshot.date, level: snapshot.level };
-          moved = true;
-        }
+      const reference = { date: snapshot.date, level: snapshot.level, threshold };
+      if (previous && previous.threshold !== threshold) {
+        // Another threshold: the old level is not comparable, the reference
+        // only follows, nothing fires.
+        this.seen[fips] = reference;
+        moved = true;
         continue;
       }
-      this.seen[fips] = { date: snapshot.date, level: snapshot.level };
+      if (previous && snapshot.date <= previous.date) {
+        continue;
+      }
+      // At least once: a crash between the event and the save fires it again.
+      this.seen[fips] = reference;
       moved = true;
       // A reference more than 3 weeks old (county followed again, long outage)
       // says nothing about this week: it is only replaced.
