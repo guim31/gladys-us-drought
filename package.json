@@ -1,8 +1,8 @@
 {
-  "name": "gladys-integration-template-js",
+  "name": "gladys-us-drought",
   "version": "1.0.0",
   "private": true,
-  "description": "Official starter template to build an external integration for Gladys Assistant with the JavaScript SDK.",
+  "description": "Drought level of your US county (US Drought Monitor) for Gladys Assistant: categories, changes, triggers and widget.",
   "type": "module",
   "main": "index.js",
   "scripts": {

@@ -32,14 +32,19 @@ pushing.
 
 ```
 index.js                          SDK wiring only: handlers registered before connect()
-src/devices/index.js              registry of the device blueprints + dispatch helpers
-src/devices/<type>.js             one device type per file (buildDevice, onPoll, onSetValue...)
-src/scenes.js                     scene action handlers (manifest `scene_actions`)
-src/widgets.js                    dashboard widget handlers (manifest `widgets`)
+src/app.js                        registers every SDK handler, returns the monitor (tests use it too)
+src/monitor.js                    hourly cycle: reads due counties, states, triggers, status, images
+src/usdm.js                       client of the USDM data services + parsing of a county answer
+src/drought.js                    level at a threshold, changes over 1 and 4 weeks, next map due
+src/devices.js                    one device per county: features, states, external ids
+src/messages.js                   levels, changes, statuses, summary in en/fr/de/es, formatting
+src/png.js                        widget picture: shares as a strip in USDM colours (tiny PNG encoder)
+src/widgets.js                    dashboard widget `drought`
+src/scenes.js                     scene action `get_drought_summary`
+src/store.js                      /data/us-drought.json (maps, read times, unknown codes, references)
 src/config.js                     DEFAULT_CONFIG (mirrors the manifest defaults) + normalization
-src/weather.js                    example driver (Open-Meteo)
-gladys-assistant-integration.json manifest: name, config_schema, actions, image...
-docs/en.md, docs/fr.md            user documentation, re-hosted by Gladys (mandatory)
+gladys-assistant-integration.json manifest: name, config_schema, triggers, action, widget...
+docs/{en,fr,de,es}.md             user documentation, re-hosted by Gladys (same sections)
 test/                             node --test, against the SDK's fake Gladys (integration-sdk/testing)
 .github/scripts/release.mjs       release helpers (manifest bump, changelog), tested in test/
 ```
@@ -70,8 +75,8 @@ test/                             node --test, against the SDK's fake Gladys (in
   `type: "provider"`: 5.1.0). `test/manifest.test.js` ties the manifest to the
   code (defaults, action, scene and widget handlers): change both sides
   together.
-- **User-facing text** is bilingual (English and French): action messages,
-  manifest texts, and `docs/en.md` / `docs/fr.md`, kept in sync.
+- **User-facing text** exists in English, French, German and Spanish: messages,
+  manifest texts, and `docs/{en,fr,de,es}.md`, kept in sync (`test/i18n.test.js`).
 - **Style.** Prettier formats, ESLint catches mistakes. Comments explain why,
   in English. Tests never touch the network.
 
@@ -251,3 +256,25 @@ long, et sur un « Sie »/« Ihr… » de politesse en allemand. Le store exige 
 - Docs `en`, `fr`, `de`, `es` avec les mêmes sections.
 - Chauffe, ouverture, sécurité : ne rien rendre pilotable « comme un thermostat » ou par un assistant
   vocal quand une erreur serait dangereuse (leçon d'OctoPrint).
+
+## US Drought Monitor : API et pièges
+
+- Source : `https://usdmdataservices.unl.edu/api/CountyStatistics/GetDroughtSeverityStatisticsByAreaPercent?aoi=<FIPS>&startdate=M/D/YYYY&enddate=M/D/YYYY&statisticsType=1`,
+  sans clé. **JSON seulement avec `Accept: application/json`** (CSV sinon). `statisticsType=1` : pourcentages
+  **cumulés** (`d1` = D1 ou pire, `d0` = D0 ou pire, `none` = sans rien) ; `2` donnerait les parts exclusives.
+  Une ligne par carte, `mapDate` = le mardi des données, publiée le jeudi (vers 8 h 30 heure de Washington).
+- Un code FIPS inconnu répond **200 avec `[]`**, pas 404 : c'est le seul signal d'un code faux. Il est signalé
+  dans le statut de connexion (objet en quatre langues avec les codes) et redemandé une fois par jour.
+- Pas de quota documenté. Lecture : une fois par jour par comté, toutes les 3 h dès que la carte suivante est
+  due (`nextMapDue` : mardi + 9 jours, 14 h UTC), une lecture ratée attend le cycle horaire suivant (50 min mini,
+  même après un changement de configuration).
+- Le niveau (`risk/integer`, 0 à 5) est la catégorie la plus forte couvrant au moins le seuil réglé (1 % par
+  défaut) de la surface. Un changement de seuil ne fait que déplacer la référence des déclencheurs.
+- Les parts en % utilisent `level-sensor/liquid-level-percent` (le capteur de pourcentage générique, comme
+  les autres intégrations de guim31) : `level-sensor/decimal` n'existe pas côté serveur.
+- Couleurs officielles de l'USDM : le vocabulaire des widgets n'a qu'une palette sémantique fermée, d'où une
+  image PNG (bande découpée par catégorie) servie par `onWidgetGetImage`, clé `usdm-<fips>-<yyyymmdd>` qui
+  change avec la carte (le cœur met les images en cache une heure par clé).
+- Une carte vieille de plus de 21 jours n'est plus publiée (ni battement de cœur) : la source est en panne.
+- Comté choisi par son code FIPS et non déduit de la position de la maison : il faudrait un géocodeur tiers
+  (Census, FCC).
