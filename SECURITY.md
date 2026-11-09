@@ -30,6 +30,15 @@ Gladys before reporting a problem.
 
 In scope: the code of this repository and the Docker image it publishes.
 
+What the integration handles:
+
+- `/data/us-drought.json`: the maps read from the US Drought Monitor data services (public,
+  aggregated data: share of each county in each drought category), the time of the last read per
+  county, the codes the service does not know, and the last map seen per county (reference of
+  the triggers). No personal data.
+- No secret: the data services need no account nor key.
+- Network: outgoing HTTPS only, to `usdmdataservices.unl.edu`. The container listens on no port.
+
 Out of scope: Gladys Assistant itself (see its
 [security policy](https://github.com/GladysAssistant/Gladys/security/policy)),
 and the third-party services and devices the integration talks to.

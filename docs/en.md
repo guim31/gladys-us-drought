@@ -1,61 +1,136 @@
-# Demo Devices Template
+# US Drought Monitor
 
-This is the user documentation of the integration. Gladys re-hosts this file
-and shows a permanent **Documentation** link to it in the Configuration screen
-(in the user's language, with English as the fallback) — it is when
-configuring that the user needs it most. Keep the short onboarding hints in
-the `section` blocks of the manifest `config_schema`; put the long
-step-by-step (screenshots, troubleshooting…) here.
+The drought level of your county, from the **US Drought Monitor** (USDM), the
+weekly drought map of the United States produced by the National Drought
+Mitigation Center (University of Nebraska-Lincoln), the USDA and NOAA. One
+device per county you follow, with its drought category, the share of the
+county in each category and the change over 1 and 4 weeks; scene triggers
+when the drought gets worse, reaches a level or improves; a sentence ready for
+a notification; and a dashboard widget in the colours of the USDM map.
+
+The USDM describes drought; **it does not set water restrictions**: they are
+decided by your city, county or water utility.
 
 ## What you get
 
-Six demo devices show up after installation: a weather station (real data
-from Open-Meteo), a switch, a dimmable light, a smart plug with power
-metering, a motion sensor and a camera.
+- one device per county, with its level (0 to 5), its category ("D2 · Severe
+  drought"), the share of the county in D1 or worse, D2 or worse, D3 or worse
+  and D4, the change over 1 and 4 weeks and the date of the map;
+- three scene triggers: the drought gets worse, reaches a level, improves;
+- a scene action that returns the latest map in one sentence;
+- a dashboard widget with the shares of each category as a strip in the
+  official USDM colours.
+
+## Requirements
+
+- Gladys Assistant 5.3 or later.
+- Internet access from Gladys (the USDM data services, no account, no key).
+- The 5-digit FIPS code of your county (see below).
 
 ## Configuration
 
-1. Open the **Configuration** tab of the integration.
-2. Set the **latitude** and **longitude** the demo weather station should
-   observe (they default to Paris), and pick your temperature unit.
-   The **refresh interval** sets how often the weather station and the
-   plug's power are read: every 5 minutes by default, every minute at most.
-3. Save: the devices appear in the **Discovery** tab, ready to be added.
+1. Find the FIPS code of your county: 2 digits for the state, 3 for the
+   county. Harris County, Texas is 48201; Los Angeles County, California is 06037. The US Census lists them all
+   (https://www.census.gov/library/reference/code-lists/ansi.html), and a
+   search for "FIPS code" and your county name gives it too.
+2. In the **Configuration** tab, type the codes, separated by commas, and
+   save.
+3. Create the devices in the **Discover** tab.
 
-The **Prefer the local connection** toggle drives the demo plug: it reports
-the channel it actually uses as a badge (local or cloud), with an orange dot
-when it runs degraded (local refused, cloud fallback).
+### Settings
 
-## Actions
+- **County FIPS codes** — 10 counties at most. A code the USDM does not know
+  is reported in the status of the integration, and no device is offered for
+  it. A 4-digit code is read with a leading zero (6037 is 06037).
+- **Share needed for a category** — the level of a county is the strongest
+  category covering at least this share of its area, 1 % by default. The USDM
+  draws its categories on a map: in a large county, a sliver of D3 on its edge
+  says little about your house. Choose "Any share" to follow the strongest
+  category touching the county, or a higher share to follow the most of it.
+- **Language of the feature names** — names of the new features, and
+  language of their texts (categories, changes, dates, scene variables and
+  summary).
 
-- **Test the weather provider** — performs a live request to Open-Meteo and
-  shows the current temperature and humidity under the button.
-- **Identify a device** — pick one of your devices in the list and it will
-  signal itself (the demo light "blinks" in the logs).
+## Devices
 
-## Scenes
+| Feature                 | Content                                                                                       |
+| ----------------------- | --------------------------------------------------------------------------------------------- |
+| Drought level (0–5)     | 0 no drought, 1 D0 abnormally dry, 2 D1 moderate, 3 D2 severe, 4 D3 extreme, 5 D4 exceptional |
+| Drought category        | "D2 · Severe drought", "No drought"                                                           |
+| Area in D1 or worse     | share of the county in drought, in %                                                          |
+| Area in D2/D3 or worse  | share of the county in D2 or worse, D3 or worse, in %                                         |
+| Area in D4              | share of the county in exceptional drought, in %                                              |
+| Change over 1 / 4 weeks | "D1 → D2, worse · D1+ +12.5 pts": levels, and change of the D1+ share in points               |
+| Map date                | the Tuesday the map describes                                                                 |
 
-The integration adds its own cards to the scene editor (Gladys 5.1 or
-later), under the **Integrations** category:
+D0 (abnormally dry) is not a drought for the USDM: it marks an area going into
+or coming out of drought. It is a level of its own here.
 
-- **Motion detected** (trigger) — starts the scene when a demo motion sensor
-  sees something move. Optionally pick the sensor and what moved (person,
-  animal); left empty, any detection matches. The following actions can
-  read what moved with `{{triggerEvent.data.target}}`.
-- **Identify a device** (action) — makes the chosen device signal itself.
-  It returns whether the device could signal itself, so the following
-  actions can depend on it.
+The shares follow the USDM: "D2 or worse" includes D3 and D4. The level,
+category and shares keep their history.
 
-## Dashboard
+## Dashboard widget
 
-Add the **Demo status** widget to a dashboard: it shows the live
-temperature of the weather station and the power of the office plug, the
-connection the plug currently uses (orange when degraded) and the observed
-location. Its **Identify the light** button makes the demo light signal
-itself.
+**US drought**: the county chosen (or the first one followed), with its name
+in Gladys, a strip cut in the share of each category in the colours of the
+USDM legend (dark red D4, red D3, orange D2, tan D1, yellow D0, grey without
+drought), the category, the shares and the changes, and the map date. Each
+block can be hidden in the widget settings.
+
+## Scene triggers
+
+- **Drought gets worse** — a new weekly map puts the county in a stronger
+  category than the previous map.
+- **Drought reaches a level** — a new map puts the county in the chosen
+  category (D0 to D4) or a stronger one, coming from a weaker one.
+- **Drought improves** — a new map puts the county in a weaker category.
+
+Each trigger can be limited to one county. They fire once per new map (Thursday)
+and never on the first map read, which only sets the reference. Variables:
+county, category (none, D0 to D4), previous category, category name, level
+(0–5), area in D1 or worse, map date.
+
+## Scene action
+
+**Drought: get the county map in one sentence** returns, for the chosen
+county (or the first one followed), a sentence such as "Harris County, TX, map
+of Nov 3, 2026: D3 · Extreme drought, 83.2% of the county in drought (D1+).
+Worse than 4 weeks ago.", and the category, level, shares and map date for
+the following actions.
+
+## Scene examples
+
+- Drought reaches D2 → notification "Think about watering restrictions: check
+  your city's rules."
+- Every Thursday evening → get the sentence and send it on Telegram.
+- Drought improves → turn the garden watering schedule back to normal.
+
+## Data sources, licence and quotas
+
+- US Drought Monitor data services, `usdmdataservices.unl.edu`, county
+  statistics in percent of area. No account, no key, no documented quota.
+- The map is drawn with the data of Tuesday and published on Thursday. The
+  integration reads each county once a day, and every 3 hours from Thursday
+  afternoon (UTC) until the new map is there: a few requests per county and
+  per day.
+- "The U.S. Drought Monitor is jointly produced by the National Drought
+  Mitigation Center at the University of Nebraska-Lincoln, the United States
+  Department of Agriculture, and the National Oceanic and Atmospheric
+  Administration. Map courtesy of NDMC."
+- Not affiliated with the US Drought Monitor, the NDMC, the USDA or NOAA.
 
 ## Troubleshooting
 
-The integration logs everything it does: check the integration logs from the
-Gladys UI (or `docker logs` on the host) with `LOG_LEVEL=debug` for the full
-detail.
+- **No device in the Discover tab** — check the FIPS codes: a code the USDM
+  does not know is named in the status of the integration.
+- **"Cannot be read" status** — the USDM data services do not answer; the
+  integration tries again every hour and keeps the last map for three weeks.
+- Logs: the integration logs page of Gladys; `LOG_LEVEL=debug` for the detail
+  of each read.
+
+## Limits
+
+- United States only, county level (no city or ZIP code).
+- Weekly data: the map of Thursday describes the Tuesday before.
+- Water restrictions are not part of the USDM: ask your city or water utility.
+- After three weeks without a new map, the devices stop receiving values.

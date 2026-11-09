@@ -1,177 +1,810 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "US Drought Monitor",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "Drought level of your county from the US Drought Monitor: categories D0 to D4, changes, triggers.",
+    "fr": "Niveau de sécheresse de votre comté américain (US Drought Monitor) : D0 à D4, évolution, alertes.",
+    "de": "Dürrestufe deines US-Countys laut US Drought Monitor: D0 bis D4, Änderungen, Auslöser.",
+    "es": "Nivel de sequía de su condado de EE. UU. (US Drought Monitor): D0 a D4, evolución, alertas."
   },
   "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
-  "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "docker_image": "ghcr.io/guim31/gladys-us-drought:1.0.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/guim31/gladys-us-drought/main/cover.png",
+  "categories": ["environment"],
+  "countries": ["US"],
+  "transports": ["cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your counties",
+        "fr": "Vos comtés",
+        "de": "Deine Countys",
+        "es": "Sus condados"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Type the 5-digit FIPS code of each county to follow (Harris County, Texas: 48201): one device per county, with its drought category, the share of its area in each category and the change over 1 and 4 weeks. Save, then create the devices in the Discover tab.",
+        "fr": "Saisissez le code FIPS à 5 chiffres de chaque comté à suivre (Harris County, Texas : 48201) : un appareil par comté, avec sa catégorie de sécheresse, la part de sa surface dans chaque catégorie et l'évolution sur 1 et 4 semaines. Enregistrez, puis créez les appareils dans l'onglet Découverte.",
+        "de": "Gib den 5-stelligen FIPS-Code jedes Countys ein, das du verfolgen willst (Harris County, Texas: 48201): ein Gerät pro County, mit seiner Dürrekategorie, dem Flächenanteil jeder Kategorie und der Änderung in 1 und 4 Wochen. Speichere und lege dann die Geräte im Tab „Entdecken“ an.",
+        "es": "Escriba el código FIPS de 5 cifras de cada condado que desea seguir (Harris County, Texas: 48201): un dispositivo por condado, con su categoría de sequía, la parte de su superficie en cada categoría y la evolución en 1 y 4 semanas. Guarde y cree los dispositivos en la pestaña Descubrir."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://www.census.gov/library/reference/code-lists/ansi.html#cou",
+          "label": {
+            "en": "County FIPS codes (US Census)",
+            "fr": "Codes FIPS des comtés (US Census)",
+            "de": "FIPS-Codes der Countys (US Census)",
+            "es": "Códigos FIPS de los condados (US Census)"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "about",
+      "type": "section",
+      "label": {
+        "en": "Sources and limits",
+        "fr": "Sources et limites",
+        "de": "Quellen und Grenzen",
+        "es": "Fuentes y límites"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
-    },
-    {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
       "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+        "en": "Map of the US Drought Monitor (NDMC, USDA, NOAA), read without an account, published every Thursday with the data of Tuesday. It does not set water restrictions: they depend on your city or water utility. Not affiliated with the US Drought Monitor.",
+        "fr": "Carte de l'US Drought Monitor (NDMC, USDA, NOAA), lue sans compte, publiée chaque jeudi avec les données du mardi. Elle ne fixe pas les restrictions d'eau : elles dépendent de votre ville ou de votre distributeur. Non affiliée à l'US Drought Monitor.",
+        "de": "Karte des US Drought Monitor (NDMC, USDA, NOAA), ohne Konto gelesen, jeden Donnerstag mit den Daten vom Dienstag veröffentlicht. Die Karte legt keine Wasserbeschränkungen fest: Diese hängen von deiner Stadt oder deinem Wasserversorger ab. Steht in keiner Verbindung zum US Drought Monitor.",
+        "es": "Mapa del US Drought Monitor (NDMC, USDA, NOAA), leído sin cuenta, publicado cada jueves con los datos del martes. No fija las restricciones de agua: dependen de su ciudad o de su distribuidor. Sin afiliación con el US Drought Monitor."
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
-    },
-    {
-      "key": "unit",
-      "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
+      "links": [
+        {
+          "url": "https://droughtmonitor.unl.edu/",
+          "label": {
+            "en": "US Drought Monitor",
+            "fr": "US Drought Monitor",
+            "de": "US Drought Monitor",
+            "es": "US Drought Monitor"
+          }
+        }
       ]
     },
     {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "key": "counties",
+      "type": "string",
+      "label": {
+        "en": "County FIPS codes",
+        "fr": "Codes FIPS des comtés",
+        "de": "FIPS-Codes der Countys",
+        "es": "Códigos FIPS de los condados"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "5 digits each, separated by commas, 10 at most.",
+        "fr": "5 chiffres chacun, séparés par des virgules, 10 au plus.",
+        "de": "Je 5 Ziffern, durch Kommas getrennt, höchstens 10.",
+        "es": "5 cifras cada uno, separados por comas, 10 como máximo."
+      },
+      "placeholder": {
+        "en": "e.g. 48201, 06037",
+        "fr": "ex. 48201, 06037",
+        "de": "z. B. 48201, 06037",
+        "es": "p. ej. 48201, 06037"
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
-    }
-  ],
-  "actions": [
-    {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
+      "default": ""
     },
     {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
+      "key": "threshold",
+      "type": "select",
+      "label": {
+        "en": "Share needed for a category",
+        "fr": "Part nécessaire pour une catégorie",
+        "de": "Nötiger Anteil für eine Kategorie",
+        "es": "Parte necesaria para una categoría"
+      },
+      "description": {
+        "en": "The level of a county is the strongest category covering at least this share of its area.",
+        "fr": "Le niveau d'un comté est la catégorie la plus forte qui couvre au moins cette part de sa surface.",
+        "de": "Die Stufe eines Countys ist die stärkste Kategorie, die mindestens diesen Anteil seiner Fläche abdeckt.",
+        "es": "El nivel de un condado es la categoría más fuerte que cubre al menos esta parte de su superficie."
+      },
+      "required": false,
+      "default": "1",
+      "options": [
         {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "value": "0",
+          "label": {
+            "en": "Any share",
+            "fr": "Toute surface",
+            "de": "Jeder Anteil",
+            "es": "Cualquier parte"
+          }
+        },
+        {
+          "value": "1",
+          "label": {
+            "en": "1% of the county",
+            "fr": "1 % du comté",
+            "de": "1 % des Countys",
+            "es": "1 % del condado"
+          }
+        },
+        {
+          "value": "5",
+          "label": {
+            "en": "5% of the county",
+            "fr": "5 % du comté",
+            "de": "5 % des Countys",
+            "es": "5 % del condado"
+          }
+        },
+        {
+          "value": "10",
+          "label": {
+            "en": "10% of the county",
+            "fr": "10 % du comté",
+            "de": "10 % des Countys",
+            "es": "10 % del condado"
+          }
+        },
+        {
+          "value": "25",
+          "label": {
+            "en": "25% of the county",
+            "fr": "25 % du comté",
+            "de": "25 % des Countys",
+            "es": "25 % del condado"
+          }
+        },
+        {
+          "value": "50",
+          "label": {
+            "en": "50% of the county",
+            "fr": "50 % du comté",
+            "de": "50 % des Countys",
+            "es": "50 % del condado"
+          }
+        }
+      ]
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "label": {
+        "en": "Language of the feature names",
+        "fr": "Langue des noms de fonctionnalités",
+        "de": "Sprache der Funktionsnamen",
+        "es": "Idioma de los nombres de las funciones"
+      },
+      "description": {
+        "en": "Names given to the new features, and language of their texts (categories, changes, dates, scene variables and summary).",
+        "fr": "Noms donnés aux nouvelles fonctionnalités, et langue de leurs textes (catégories, évolutions, dates, variables de scène et résumé).",
+        "de": "Namen neuer Funktionen und Sprache ihrer Texte (Kategorien, Änderungen, Daten, Szenenvariablen und Zusammenfassung).",
+        "es": "Nombres de las nuevas funciones e idioma de sus textos (categorías, evoluciones, fechas, variables de escena y resumen)."
+      },
+      "required": false,
+      "default": "fr",
+      "options": [
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais",
+            "de": "Englisch",
+            "es": "Inglés"
+          }
+        },
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français",
+            "de": "Französisch",
+            "es": "Francés"
+          }
+        },
+        {
+          "value": "de",
+          "label": {
+            "en": "German",
+            "fr": "Allemand",
+            "de": "Deutsch",
+            "es": "Alemán"
+          }
+        },
+        {
+          "value": "es",
+          "label": {
+            "en": "Spanish",
+            "fr": "Espagnol",
+            "de": "Spanisch",
+            "es": "Español"
+          }
         }
       ]
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "drought_worsened",
+      "label": {
+        "en": "Drought gets worse",
+        "fr": "La sécheresse s'aggrave",
+        "de": "Die Dürre verschärft sich",
+        "es": "La sequía empeora"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A new weekly map puts a county in a stronger category than the previous map.",
+        "fr": "Une nouvelle carte hebdomadaire place un comté dans une catégorie plus forte que la carte précédente.",
+        "de": "Eine neue Wochenkarte stuft ein County in eine stärkere Kategorie ein als die vorherige Karte.",
+        "es": "Un nuevo mapa semanal sitúa un condado en una categoría más fuerte que el mapa anterior."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "county",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "required": false,
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          },
+          "description": {
+            "en": "Empty: every county followed.",
+            "fr": "Vide : tous les comtés suivis.",
+            "de": "Leer: alle verfolgten Countys.",
+            "es": "Vacío: todos los condados seguidos."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "county_name",
+          "type": "string",
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
+          "key": "category",
+          "type": "string",
+          "label": {
+            "en": "Category (none, D0 to D4)",
+            "fr": "Catégorie (none, D0 à D4)",
+            "de": "Kategorie (none, D0 bis D4)",
+            "es": "Categoría (none, D0 a D4)"
+          }
+        },
+        {
+          "key": "previous_category",
+          "type": "string",
+          "label": {
+            "en": "Previous category",
+            "fr": "Catégorie précédente",
+            "de": "Vorherige Kategorie",
+            "es": "Categoría anterior"
+          }
+        },
+        {
+          "key": "category_name",
+          "type": "string",
+          "label": {
+            "en": "Category name",
+            "fr": "Nom de la catégorie",
+            "de": "Name der Kategorie",
+            "es": "Nombre de la categoría"
+          }
+        },
+        {
+          "key": "drought_level",
+          "type": "number",
+          "label": {
+            "en": "Drought level (0–5)",
+            "fr": "Niveau de sécheresse (0–5)",
+            "de": "Dürrestufe (0–5)",
+            "es": "Nivel de sequía (0–5)"
+          }
+        },
+        {
+          "key": "d1_area",
+          "type": "number",
+          "label": {
+            "en": "Area in D1 or worse (%)",
+            "fr": "Surface en D1 ou pire (%)",
+            "de": "Fläche in D1 oder schlimmer (%)",
+            "es": "Superficie en D1 o peor (%)"
+          }
+        },
+        {
+          "key": "map_date",
+          "type": "string",
+          "label": {
+            "en": "Map date",
+            "fr": "Date de la carte",
+            "de": "Datum der Karte",
+            "es": "Fecha del mapa"
+          }
+        }
+      ]
+    },
+    {
+      "key": "drought_level_reached",
+      "label": {
+        "en": "Drought reaches a level",
+        "fr": "La sécheresse atteint un niveau",
+        "de": "Die Dürre erreicht eine Stufe",
+        "es": "La sequía alcanza un nivel"
+      },
+      "description": {
+        "en": "A new weekly map puts a county in the chosen category or a stronger one, coming from a weaker one.",
+        "fr": "Une nouvelle carte hebdomadaire place un comté dans la catégorie choisie ou plus forte, alors qu'il était en dessous.",
+        "de": "Eine neue Wochenkarte stuft ein County in die gewählte oder eine stärkere Kategorie ein, vorher lag es darunter.",
+        "es": "Un nuevo mapa semanal sitúa un condado en la categoría elegida o una más fuerte, cuando antes estaba por debajo."
+      },
+      "fields": [
+        {
+          "key": "county",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          },
+          "description": {
+            "en": "Empty: every county followed.",
+            "fr": "Vide : tous les comtés suivis.",
+            "de": "Leer: alle verfolgten Countys.",
+            "es": "Vacío: todos los condados seguidos."
+          }
+        },
+        {
+          "key": "level",
+          "type": "select",
+          "required": true,
+          "label": {
+            "en": "Level",
+            "fr": "Niveau",
+            "de": "Stufe",
+            "es": "Nivel"
+          },
           "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
+            {
+              "value": "D0",
+              "label": {
+                "en": "D0 · Abnormally dry",
+                "fr": "D0 · Anormalement sec",
+                "de": "D0 · Ungewöhnlich trocken",
+                "es": "D0 · Anormalmente seco"
+              }
+            },
+            {
+              "value": "D1",
+              "label": {
+                "en": "D1 · Moderate drought",
+                "fr": "D1 · Sécheresse modérée",
+                "de": "D1 · Mäßige Dürre",
+                "es": "D1 · Sequía moderada"
+              }
+            },
+            {
+              "value": "D2",
+              "label": {
+                "en": "D2 · Severe drought",
+                "fr": "D2 · Sécheresse sévère",
+                "de": "D2 · Schwere Dürre",
+                "es": "D2 · Sequía severa"
+              }
+            },
+            {
+              "value": "D3",
+              "label": {
+                "en": "D3 · Extreme drought",
+                "fr": "D3 · Sécheresse extrême",
+                "de": "D3 · Extreme Dürre",
+                "es": "D3 · Sequía extrema"
+              }
+            },
+            {
+              "value": "D4",
+              "label": {
+                "en": "D4 · Exceptional drought",
+                "fr": "D4 · Sécheresse exceptionnelle",
+                "de": "D4 · Außergewöhnliche Dürre",
+                "es": "D4 · Sequía excepcional"
+              }
+            }
           ]
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "county_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          }
+        },
+        {
+          "key": "category",
+          "type": "string",
+          "label": {
+            "en": "Category (none, D0 to D4)",
+            "fr": "Catégorie (none, D0 à D4)",
+            "de": "Kategorie (none, D0 bis D4)",
+            "es": "Categoría (none, D0 a D4)"
+          }
+        },
+        {
+          "key": "previous_category",
+          "type": "string",
+          "label": {
+            "en": "Previous category",
+            "fr": "Catégorie précédente",
+            "de": "Vorherige Kategorie",
+            "es": "Categoría anterior"
+          }
+        },
+        {
+          "key": "category_name",
+          "type": "string",
+          "label": {
+            "en": "Category name",
+            "fr": "Nom de la catégorie",
+            "de": "Name der Kategorie",
+            "es": "Nombre de la categoría"
+          }
+        },
+        {
+          "key": "drought_level",
+          "type": "number",
+          "label": {
+            "en": "Drought level (0–5)",
+            "fr": "Niveau de sécheresse (0–5)",
+            "de": "Dürrestufe (0–5)",
+            "es": "Nivel de sequía (0–5)"
+          }
+        },
+        {
+          "key": "d1_area",
+          "type": "number",
+          "label": {
+            "en": "Area in D1 or worse (%)",
+            "fr": "Surface en D1 ou pire (%)",
+            "de": "Fläche in D1 oder schlimmer (%)",
+            "es": "Superficie en D1 o peor (%)"
+          }
+        },
+        {
+          "key": "map_date",
+          "type": "string",
+          "label": {
+            "en": "Map date",
+            "fr": "Date de la carte",
+            "de": "Datum der Karte",
+            "es": "Fecha del mapa"
+          }
+        }
+      ]
+    },
+    {
+      "key": "drought_improved",
+      "label": {
+        "en": "Drought improves",
+        "fr": "La sécheresse s'améliore",
+        "de": "Die Dürre lässt nach",
+        "es": "La sequía mejora"
+      },
+      "description": {
+        "en": "A new weekly map puts a county in a weaker category than the previous map.",
+        "fr": "Une nouvelle carte hebdomadaire place un comté dans une catégorie plus faible que la carte précédente.",
+        "de": "Eine neue Wochenkarte stuft ein County in eine schwächere Kategorie ein als die vorherige Karte.",
+        "es": "Un nuevo mapa semanal sitúa un condado en una categoría más débil que el mapa anterior."
+      },
+      "fields": [
+        {
+          "key": "county",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          },
+          "description": {
+            "en": "Empty: every county followed.",
+            "fr": "Vide : tous les comtés suivis.",
+            "de": "Leer: alle verfolgten Countys.",
+            "es": "Vacío: todos los condados seguidos."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "county_name",
+          "type": "string",
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          }
+        },
+        {
+          "key": "category",
+          "type": "string",
+          "label": {
+            "en": "Category (none, D0 to D4)",
+            "fr": "Catégorie (none, D0 à D4)",
+            "de": "Kategorie (none, D0 bis D4)",
+            "es": "Categoría (none, D0 a D4)"
+          }
+        },
+        {
+          "key": "previous_category",
+          "type": "string",
+          "label": {
+            "en": "Previous category",
+            "fr": "Catégorie précédente",
+            "de": "Vorherige Kategorie",
+            "es": "Categoría anterior"
+          }
+        },
+        {
+          "key": "category_name",
+          "type": "string",
+          "label": {
+            "en": "Category name",
+            "fr": "Nom de la catégorie",
+            "de": "Name der Kategorie",
+            "es": "Nombre de la categoría"
+          }
+        },
+        {
+          "key": "drought_level",
+          "type": "number",
+          "label": {
+            "en": "Drought level (0–5)",
+            "fr": "Niveau de sécheresse (0–5)",
+            "de": "Dürrestufe (0–5)",
+            "es": "Nivel de sequía (0–5)"
+          }
+        },
+        {
+          "key": "d1_area",
+          "type": "number",
+          "label": {
+            "en": "Area in D1 or worse (%)",
+            "fr": "Surface en D1 ou pire (%)",
+            "de": "Fläche in D1 oder schlimmer (%)",
+            "es": "Superficie en D1 o peor (%)"
+          }
+        },
+        {
+          "key": "map_date",
+          "type": "string",
+          "label": {
+            "en": "Map date",
+            "fr": "Date de la carte",
+            "de": "Datum der Karte",
+            "es": "Fecha del mapa"
+          }
         }
       ]
     }
   ],
   "scene_actions": [
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "get_drought_summary",
+      "label": {
+        "en": "Drought: get the county map in one sentence",
+        "fr": "Sécheresse : obtenir la carte du comté en une phrase",
+        "de": "Dürre: die Karte des Countys in einem Satz abrufen",
+        "es": "Sequía: obtener el mapa del condado en una frase"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "The latest drought category of a county and its change, in a sentence ready for a notification (language of the configuration).",
+        "fr": "La dernière catégorie de sécheresse d'un comté et son évolution, en une phrase prête pour une notification (langue de la configuration).",
+        "de": "Die letzte Dürrekategorie eines Countys und ihre Änderung, in einem fertigen Satz für eine Benachrichtigung (Sprache der Konfiguration).",
+        "es": "La última categoría de sequía de un condado y su evolución, en una frase lista para una notificación (idioma de la configuración)."
+      },
+      "timeout_seconds": 10,
       "fields": [
         {
-          "key": "device",
+          "key": "county",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "required": false,
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          },
+          "description": {
+            "en": "Empty: the first county followed.",
+            "fr": "Vide : le premier comté suivi.",
+            "de": "Leer: das erste verfolgte County.",
+            "es": "Vacío: el primer condado seguido."
+          }
         }
       ],
       "outputs": [
         {
-          "key": "signalled",
-          "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "key": "summary",
+          "type": "string",
+          "label": {
+            "en": "Summary",
+            "fr": "Résumé",
+            "de": "Zusammenfassung",
+            "es": "Resumen"
+          }
+        },
+        {
+          "key": "county_name",
+          "type": "string",
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          }
+        },
+        {
+          "key": "category",
+          "type": "string",
+          "label": {
+            "en": "Category (none, D0 to D4)",
+            "fr": "Catégorie (none, D0 à D4)",
+            "de": "Kategorie (none, D0 bis D4)",
+            "es": "Categoría (none, D0 a D4)"
+          }
+        },
+        {
+          "key": "drought_level",
+          "type": "number",
+          "label": {
+            "en": "Drought level (0–5)",
+            "fr": "Niveau de sécheresse (0–5)",
+            "de": "Dürrestufe (0–5)",
+            "es": "Nivel de sequía (0–5)"
+          }
+        },
+        {
+          "key": "map_date",
+          "type": "string",
+          "label": {
+            "en": "Map date",
+            "fr": "Date de la carte",
+            "de": "Datum der Karte",
+            "es": "Fecha del mapa"
+          }
+        },
+        {
+          "key": "d1_area",
+          "type": "number",
+          "label": {
+            "en": "Area in D1 or worse (%)",
+            "fr": "Surface en D1 ou pire (%)",
+            "de": "Fläche in D1 oder schlimmer (%)",
+            "es": "Superficie en D1 o peor (%)"
+          }
+        },
+        {
+          "key": "d2_area",
+          "type": "number",
+          "label": {
+            "en": "Area in D2 or worse (%)",
+            "fr": "Surface en D2 ou pire (%)",
+            "de": "Fläche in D2 oder schlimmer (%)",
+            "es": "Superficie en D2 o peor (%)"
+          }
+        },
+        {
+          "key": "d3_area",
+          "type": "number",
+          "label": {
+            "en": "Area in D3 or worse (%)",
+            "fr": "Surface en D3 ou pire (%)",
+            "de": "Fläche in D3 oder schlimmer (%)",
+            "es": "Superficie en D3 o peor (%)"
+          }
+        },
+        {
+          "key": "d4_area",
+          "type": "number",
+          "label": {
+            "en": "Area in D4 (%)",
+            "fr": "Surface en D4 (%)",
+            "de": "Fläche in D4 (%)",
+            "es": "Superficie en D4 (%)"
+          }
         }
       ]
     }
   ],
   "widgets": [
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "drought",
+      "label": {
+        "en": "US drought",
+        "fr": "Sécheresse (USA)",
+        "de": "Dürre (USA)",
+        "es": "Sequía (EE. UU.)"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "Drought category of a county, share of each category in USDM colours, changes.",
+        "fr": "Catégorie de sécheresse d'un comté, part de chaque catégorie aux couleurs USDM, évolution.",
+        "de": "Dürrekategorie eines Countys, Anteil jeder Kategorie in USDM-Farben, Änderungen.",
+        "es": "Categoría de sequía de un condado, parte de cada categoría en colores USDM, evolución."
+      },
+      "icon": "sun",
+      "settings": [
+        {
+          "key": "county",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "County",
+            "fr": "Comté",
+            "de": "County",
+            "es": "Condado"
+          },
+          "description": {
+            "en": "Empty: the first county followed.",
+            "fr": "Vide : le premier comté suivi.",
+            "de": "Leer: das erste verfolgte County.",
+            "es": "Vacío: el primer condado seguido."
+          }
+        },
+        {
+          "key": "show_picture",
+          "type": "boolean",
+          "default": true,
+          "label": {
+            "en": "Show the coloured strip",
+            "fr": "Afficher la bande colorée",
+            "de": "Farbigen Streifen zeigen",
+            "es": "Mostrar la franja de colores"
+          }
+        },
+        {
+          "key": "show_changes",
+          "type": "boolean",
+          "default": true,
+          "label": {
+            "en": "Show the changes",
+            "fr": "Afficher les évolutions",
+            "de": "Änderungen zeigen",
+            "es": "Mostrar las evoluciones"
+          }
+        },
+        {
+          "key": "show_source",
+          "type": "boolean",
+          "default": true,
+          "label": {
+            "en": "Show the map date",
+            "fr": "Afficher la date de la carte",
+            "de": "Datum der Karte zeigen",
+            "es": "Mostrar la fecha del mapa"
+          }
+        }
+      ]
     }
   ]
 }
