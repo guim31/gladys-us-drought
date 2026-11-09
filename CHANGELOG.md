@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-09
+
 ### Added
 
 - One device per US county (FIPS code) from the US Drought Monitor: drought level (0 to 5) and
@@ -21,3 +23,6 @@ the notes of the version's GitHub Release.
 - Dashboard widget: category, shares and changes of a county, with a strip in the official USDM
   colours.
 - Texts and documentation in English, French, German and Spanish.
+
+[Unreleased]: https://github.com/guim31/gladys-us-drought/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/guim31/gladys-us-drought/releases/tag/v1.0.0
